@@ -92,3 +92,56 @@ const map5 = {
 
 const result5 = objectMapper(source, map5);
 console.log("Example 5 Result:", result5);
+
+const map6 = {
+  'projects[]': {
+    key: (value: Project) => {
+      switch (value.status) {
+        case 'completed':
+          return 'completedProjects[]';
+        case 'in-progress':
+          return 'ongoingProjects[]';
+        case 'planned':
+          return 'futureProjects[]';
+        default:
+          return 'otherProjects[]';
+      }
+    },
+    transform: (project: Project) => project.name
+  }
+};
+
+const result6 = objectMapper(source, map6);
+console.log("Example 6 Result:", JSON.stringify(result6, null, 2));
+
+const map7 = {
+  'projects[]': [
+    {
+      key: 'completedProject',
+      transform: function(project: Project): string | undefined {
+        return project.status === 'completed' ? project.name : undefined;
+      }
+    },
+    {
+      key: 'ongoingProject',
+      transform: function(project: Project): string | undefined {
+        return project.status === 'in-progress' ? project.name : undefined;
+      }
+    },
+    {
+      key: 'futureProject',
+      transform: function(project: Project): string | undefined {
+        return project.status === 'planned' ? project.name : undefined;
+      }
+    },
+    {
+      key: 'otherProject',
+      transform: function(project: Project): string | undefined {
+        return !['completed', 'in-progress', 'planned'].includes(project.status) ? project.name : undefined;
+      }
+    }
+  ]
+};
+
+const result7 = objectMapper(source, map7);
+console.log("Example 7 Result:", JSON.stringify(result7, null, 2));

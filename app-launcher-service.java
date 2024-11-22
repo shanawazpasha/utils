@@ -110,4 +110,79 @@ public class AppLauncherService extends Service {
     }
 }
 
-// DialogActivity.java remains the same as before
+// DialogActivity.java
+package com.example.yourapplication;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.Window;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class DialogActivity extends AppCompatActivity {
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        
+        AppLauncherService.setDialogShowing(true);
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("App Required")
+               .setMessage("Would you like to launch/install the required app?")
+               .setCancelable(false)
+               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int which) {
+                       checkAndLaunchApp();
+                       finish();
+                   }
+               });
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                AppLauncherService.setDialogShowing(false);
+                finish();
+            }
+        });
+        
+        dialog.show();
+    }
+
+    private void checkAndLaunchApp() {
+        String TARGET_PACKAGE_NAME = "com.example.targetapp"; // Replace with your target app package
+        
+        if (isAppInstalled(TARGET_PACKAGE_NAME)) {
+            // App is installed, launch it
+            PackageManager pm = getPackageManager();
+            Intent launchIntent = pm.getLaunchIntentForPackage(TARGET_PACKAGE_NAME);
+            if (launchIntent != null) {
+                startActivity(launchIntent);
+            }
+        } else {
+            // App is not installed, redirect to Play Store
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, 
+                    Uri.parse("market://details?id=" + TARGET_PACKAGE_NAME)));
+            } catch (android.content.ActivityNotFoundException e) {
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=" + TARGET_PACKAGE_NAME)));
+            }
+        }
+    }
+
+    private boolean isAppInstalled(String packageName) {
+        try {
+            getPackageManager().getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+}

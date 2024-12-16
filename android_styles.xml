@@ -1,0 +1,70 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <!-- Header Section -->
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dialog Title"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:paddingBottom="8dp" />
+
+    <!-- Horizontal Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+    <!-- Content Section -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/dialog_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="This is the content section of the dialog where long text can be displayed."
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+    </ScrollView>
+
+    <!-- Footer Section -->
+    <Button
+        android:id="@+id/dialog_button_ok"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        android:background="@android:color/black"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:layout_marginTop="8dp"
+        android:padding="12dp" />
+
+</LinearLayout>
+
+
+val customView = layoutInflater.inflate(R.layout.custom_dialog, null)
+val builder = AlertDialog.Builder(this)
+builder.setView(customView)
+
+val dialog = builder.create()
+dialog.show()
+
+// Access buttons and set actions
+customView.findViewById<Button>(R.id.positiveButton).setOnClickListener {
+    dialog.dismiss()
+}
+customView.findViewById<Button>(R.id.negativeButton).setOnClickListener {
+    dialog.dismiss()
+}

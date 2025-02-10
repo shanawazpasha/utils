@@ -1,0 +1,37 @@
+class CustomTextStreamer(TextStreamer): 
+    def __init__(self, tokenizer):
+        super().__init__(tokenizer)
+        self.tokenizer = tokenizer
+        self.queue = Queue()
+        self.buffer = ""
+        self.capturing = False  # Track whether we are capturing a new response
+
+    def on_new_user_input(self):
+        """Reset buffer when a new user input is received"""
+        self.buffer = ""
+        self.capturing = False  # Ensure we start fresh
+
+    def on_finalized_text(self, text: str, stream_end: bool = False):
+        """Capture content only between the latest [ASSISTANT] and [/ASSISTANT]"""
+        self.buffer += text
+
+        # Start capturing when a new [ASSISTANT] appears
+        if "[ASSISTANT]" in self.buffer:
+            self.buffer = self.buffer.split("[ASSISTANT]", 1)[-1]  # Keep only the latest part
+            self.capturing = True
+
+        # If capturing, process the response
+        if self.capturing:
+            end_pos = self.buffer.find("[/ASSISTANT]")
+            if end_pos != -1:
+                response = self.buffer[:end_pos].strip()
+                if response:
+                    self.queue.put(response)  # Stream response
+                self.buffer = self.buffer[end_pos + len("[/ASSISTANT]"):]  # Clear processed part
+            else:
+                # Still receiving partial response
+                self.queue.put(self.buffer.strip())
+                self.buffer = ""
+
+        if stream_end:
+            self.queue.put(None)  # Indicate the end of stream

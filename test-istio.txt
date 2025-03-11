@@ -1,0 +1,63 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: route-based-on-groupname
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      app: your-app
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: SIDECAR_INBOUND
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.lua
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+            inlineCode: |
+              function envoy_on_request(request_handle)
+                  local path = request_handle:headers():get(":path")
+
+                  request_handle:logInfo("Request path: " .. tostring(path))
+
+                  if path and string.find(path, "/api/route") then
+                      local body_size = request_handle:body():length()
+                      if body_size > 0 then
+                          local body = request_handle:body():getBytes(0, body_size)
+                          request_handle:logInfo("Request body: " .. tostring(body))
+
+                          local groupname = string.match(body, '"groupname"%s*:%s*"(%w+)"')
+                          request_handle:logInfo("Extracted groupname: " .. tostring(groupname))
+
+                          if groupname then
+                              if groupname == "admin" then
+                                  request_handle:headers():add("x-envoy-original-destination", "admin-service")
+                                  request_handle:respond(
+                                      {[":status"] = "301", ["location"] = "/admin"}, 
+                                      "Redirecting to admin service"
+                                  )
+                                  return
+                              elseif groupname == "user" then
+                                  request_handle:headers():add("x-envoy-original-destination", "user-service")
+                                  request_handle:respond(
+                                      {[":status"] = "301", ["location"] = "/user"}, 
+                                      "Redirecting to user service"
+                                  )
+                                  return
+                              else
+                                  request_handle:respond({[":status"] = "403"}, "Unauthorized group")
+                                  return
+                              end
+                          else
+                              request_handle:respond({[":status"] = "400"}, "Missing groupname in request body")
+                              return
+                          end
+                      else
+                          request_handle:respond({[":status"] = "400"}, "Empty request body")
+                          return
+                      end
+                  end
+              end

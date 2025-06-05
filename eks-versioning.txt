@@ -1,0 +1,80 @@
+Jenkins:
+Define a String Parameter - VERSIONS
+VERSIONS = "1,2,3"
+
+values.yaml:
+
+Old format:
+version: v1
+
+New Format:
+versions: []
+
+
+Update Versions on every Deploy Job & Commit to Git:
+
+def versions = params.VERSIONS.split(',') as List
+def yamlData = readYaml file: 'values.yaml'
+yamlData['versions'] = versions
+writeYaml file: 'values.yaml', data: yamlData
+
+Values.yaml after update
+
+versions:
+  - v1
+  - v2
+  - v3
+  
+HELM Templates:
+
+deployment.yaml:
+
+{{- range .Values.versions }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Values.appName }}-{{ . }}
+  labels:
+    app: {{ $.Values.appName }}
+    version: {{ . }}
+spec:
+  replicas: {{ $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $.Values.appName }}
+      version: {{ . }}
+  template:
+    metadata:
+      labels:
+        app: {{ $.Values.appName }}
+        version: {{ . }}
+    spec:
+      containers:
+        - name: {{ $.Values.appName }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tagPrefix }}{{ . }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+---
+{{- end }}
+
+Service.yaml:
+
+{{- range .Values.versions }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Values.appName }}-{{ . }}
+  labels:
+    app: {{ $.Values.appName }}
+    version: {{ . }}
+spec:
+  selector:
+    app: {{ $.Values.appName }}
+    version: {{ . }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+{{- end }}

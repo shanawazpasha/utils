@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: your-microservice
+  namespace: your-namespace
+  labels:
+    app: your-microservice
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: your-microservice
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: your-microservice
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: your-microservice
+        image: your-registry/your-microservice:latest
+        ports:
+        - containerPort: 8080
+        env:
+        # Service identification
+        - name: SERVICE_NAME
+          value: "your-microservice"
+        - name: SERVICE_VERSION
+          value: "1.0.0"
+        - name: ENVIRONMENT
+          value: "production"
+        
+        # Kubernetes metadata
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        
+        # Cluster information
+        - name: CLUSTER_NAME
+          value: "your-eks-cluster"
+        - name: AWS_REGION
+          value: "us-west-2"
+        - name: AWS_AVAILABILITY_ZONE
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        
+        # Pod IP
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        
+        # Istio information
+        - name: ISTIO_VERSION
+          value: "1.18.0"
+        - name: ISTIO_MESH_ID
+          value: "cluster.local"
+        
+        # Build information
+        - name: BUILD_TIME
+          value: "2024-01-01T00:00:00Z"
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5

@@ -1,0 +1,36 @@
+# application.properties - Spring Boot configuration for logging
+spring.application.name=${SERVICE_NAME:your-microservice}
+
+# Sleuth configuration for distributed tracing
+spring.sleuth.sampler.probability=0.1
+spring.sleuth.zipkin.base-url=http://zipkin.istio-system:9411
+spring.sleuth.web.additional-skip-pattern=/actuator.*
+
+# Logging configuration
+logging.config=classpath:log4j2.properties
+logging.level.com.yourcompany.yourapp=DEBUG
+logging.level.org.springframework=INFO
+logging.level.org.springframework.boot=INFO
+logging.level.org.hibernate=WARN
+logging.level.com.zaxxer.hikari=WARN
+logging.level.org.apache.kafka=WARN
+
+# Server configuration for access logs
+server.port=8080
+server.tomcat.accesslog.enabled=true
+server.tomcat.accesslog.pattern=%{X-Forwarded-For}i %h %l %u %t "%r" %s %b %D "%{Referer}i" "%{User-Agent}i" %{X-Trace-Id}i %{X-Span-Id}i
+server.tomcat.accesslog.directory=/dev
+server.tomcat.accesslog.prefix=stdout
+server.tomcat.accesslog.suffix=
+server.tomcat.accesslog.file-date-format=
+
+# Management endpoints for monitoring
+management.endpoints.web.exposure.include=health,info,metrics,prometheus
+management.endpoint.health.show-details=always
+management.info.env.enabled=true
+
+# Custom info for service identification
+info.app.name=${spring.application.name}
+info.app.version=${SERVICE_VERSION:1.0.0}
+info.app.environment=${ENVIRONMENT:development}
+info.app.build-time=${BUILD_TIME:unknown}

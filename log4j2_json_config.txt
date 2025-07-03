@@ -1,0 +1,67 @@
+# Log4j2 Configuration for EKS Istio Environment
+# Outputs JSON format for FluentD -> ELK pipeline
+
+# Root logger configuration
+rootLogger.level = INFO
+rootLogger.appenderRef.console.ref = ConsoleAppender
+rootLogger.appenderRef.access.ref = AccessLogAppender
+
+# Console Appender with JSON Layout for Application Logs
+appender.console.type = Console
+appender.console.name = ConsoleAppender
+appender.console.target = SYSTEM_OUT
+appender.console.layout.type = JsonTemplateLayout
+appender.console.layout.eventTemplateUri = classpath:JsonLayout.json
+
+# Access Log Appender for HTTP Transport Logs
+appender.access.type = Console
+appender.access.name = AccessLogAppender
+appender.access.target = SYSTEM_OUT
+appender.access.layout.type = JsonTemplateLayout
+appender.access.layout.eventTemplateUri = classpath:AccessLogLayout.json
+
+# Package-specific logging levels
+logger.springframework.name = org.springframework
+logger.springframework.level = INFO
+logger.springframework.additivity = false
+logger.springframework.appenderRef.console.ref = ConsoleAppender
+
+logger.springboot.name = org.springframework.boot
+logger.springboot.level = INFO
+logger.springboot.additivity = false
+logger.springboot.appenderRef.console.ref = ConsoleAppender
+
+logger.hibernate.name = org.hibernate
+logger.hibernate.level = WARN
+logger.hibernate.additivity = false
+logger.hibernate.appenderRef.console.ref = ConsoleAppender
+
+# Your application packages - adjust as needed
+logger.app.name = com.yourcompany.yourapp
+logger.app.level = DEBUG
+logger.app.additivity = false
+logger.app.appenderRef.console.ref = ConsoleAppender
+
+# Access Log Logger for HTTP requests
+logger.access.name = ACCESS_LOG
+logger.access.level = INFO
+logger.access.additivity = false
+logger.access.appenderRef.access.ref = AccessLogAppender
+
+# Istio/Service Mesh related logging
+logger.istio.name = io.istio
+logger.istio.level = INFO
+logger.istio.additivity = false
+logger.istio.appenderRef.console.ref = ConsoleAppender
+
+# Netty (often used in microservices)
+logger.netty.name = io.netty
+logger.netty.level = WARN
+logger.netty.additivity = false
+logger.netty.appenderRef.console.ref = ConsoleAppender
+
+# Tomcat Access Log
+logger.tomcat.name = org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/]
+logger.tomcat.level = INFO
+logger.tomcat.additivity = false
+logger.tomcat.appenderRef.access.ref = AccessLogAppender

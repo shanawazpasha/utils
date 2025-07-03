@@ -1,0 +1,130 @@
+{
+  "@timestamp": {
+    "$resolver": "timestamp",
+    "pattern": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+    }
+  },
+  "level": {
+    "$resolver": "level",
+    "field": "name"
+  },
+  "logger": {
+    "$resolver": "logger",
+    "field": "name"
+  },
+  "message": {
+    "$resolver": "message",
+    "stringified": true
+  },
+  "thread": {
+    "$resolver": "thread",
+    "field": "name"
+  },
+  "app_info": {
+    "service_name": "${env:SERVICE_NAME:-unknown-service}",
+    "version": "${env:SERVICE_VERSION:-1.0.0}",
+    "class_name": {
+      "$resolver": "source",
+      "field": "className"
+    },
+    "method_name": {
+      "$resolver": "source",
+      "field": "methodName"
+    },
+    "file_name": {
+      "$resolver": "source",
+      "field": "fileName"
+    },
+    "line_number": {
+      "$resolver": "source",
+      "field": "lineNumber"
+    },
+    "build_time": "${env:BUILD_TIME:-unknown}",
+    "git_commit": "${env:GIT_COMMIT:-unknown}"
+  },
+  "infra_info": {
+    "cluster_name": "${env:CLUSTER_NAME:-unknown-cluster}",
+    "environment": "${env:ENVIRONMENT:-development}",
+    "namespace": "${env:NAMESPACE:-default}",
+    "region": "${env:AWS_REGION:-unknown-region}",
+    "availability_zone": "${env:AWS_AVAILABILITY_ZONE:-unknown-az}",
+    "node_name": "${env:NODE_NAME:-unknown-node}",
+    "pod_name": "${env:HOSTNAME:-unknown-pod}",
+    "pod_ip": "${env:POD_IP:-unknown-ip}",
+    "microservice_name": "${env:SERVICE_NAME:-unknown-service}",
+    "microservice_version": "${env:SERVICE_VERSION:-1.0.0}",
+    "istio_version": "${env:ISTIO_VERSION:-unknown}",
+    "istio_mesh_id": "${env:ISTIO_MESH_ID:-unknown}"
+  },
+  "user_info": {
+    "user_id": "${mdc:userId:-}",
+    "session_id": "${mdc:sessionId:-}",
+    "username": "${mdc:username:-}",
+    "user_email": "${mdc:userEmail:-}",
+    "user_role": "${mdc:userRole:-}",
+    "user_group": "${mdc:userGroup:-}",
+    "tenant_id": "${mdc:tenantId:-}",
+    "organization_id": "${mdc:organizationId:-}",
+    "correlation_id": "${mdc:correlationId:-}",
+    "request_id": "${mdc:requestId:-}"
+  },
+  "error_info": {
+    "error_code": "${mdc:errorCode:-}",
+    "error_message": {
+      "$resolver": "exception",
+      "field": "message"
+    },
+    "error_description": "${mdc:errorDescription:-}",
+    "stack_trace": {
+      "$resolver": "exception",
+      "field": "stackTrace",
+      "stackTrace": {
+        "stringified": true
+      }
+    },
+    "inner_exception": {
+      "$resolver": "exception",
+      "field": "cause",
+      "cause": {
+        "stringified": true
+      }
+    },
+    "error_category": "${mdc:errorCategory:-}",
+    "severity": "${mdc:severity:-}"
+  },
+  "trace_info": {
+    "trace_id": "${ctx:traceId:-}",
+    "span_id": "${ctx:spanId:-}",
+    "parent_span_id": "${ctx:parentSpanId:-}",
+    "baggage": "${ctx:baggage:-}"
+  },
+  "http_info": {
+    "request_method": "${mdc:httpMethod:-}",
+    "request_uri": "${mdc:requestUri:-}",
+    "request_url": "${mdc:requestUrl:-}",
+    "response_status": "${mdc:responseStatus:-}",
+    "response_time_ms": "${mdc:responseTime:-}",
+    "request_size": "${mdc:requestSize:-}",
+    "response_size": "${mdc:responseSize:-}",
+    "user_agent": "${mdc:userAgent:-}",
+    "client_ip": "${mdc:clientIp:-}",
+    "x_forwarded_for": "${mdc:xForwardedFor:-}",
+    "referer": "${mdc:referer:-}"
+  },
+  "business_context": {
+    "transaction_id": "${mdc:transactionId:-}",
+    "order_id": "${mdc:orderId:-}",
+    "customer_id": "${mdc:customerId:-}",
+    "product_id": "${mdc:productId:-}",
+    "campaign_id": "${mdc:campaignId:-}",
+    "feature_flag": "${mdc:featureFlag:-}",
+    "api_version": "${mdc:apiVersion:-}",
+    "client_version": "${mdc:clientVersion:-}"
+  },
+  "additional_context": {
+    "$resolver": "mdc",
+    "flatten": true,
+    "stringified": true
+  }
+}

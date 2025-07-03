@@ -1,0 +1,104 @@
+{
+  "@timestamp": {
+    "$resolver": "timestamp",
+    "pattern": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+    }
+  },
+  "log_type": "access_log",
+  "level": "INFO",
+  "logger": "ACCESS_LOG",
+  "message": {
+    "$resolver": "message",
+    "stringified": true
+  },
+  "app_info": {
+    "service_name": "${env:SERVICE_NAME:-unknown-service}",
+    "version": "${env:SERVICE_VERSION:-1.0.0}",
+    "environment": "${env:ENVIRONMENT:-development}"
+  },
+  "infra_info": {
+    "cluster_name": "${env:CLUSTER_NAME:-unknown-cluster}",
+    "namespace": "${env:NAMESPACE:-default}",
+    "region": "${env:AWS_REGION:-unknown-region}",
+    "node_name": "${env:NODE_NAME:-unknown-node}",
+    "pod_name": "${env:HOSTNAME:-unknown-pod}",
+    "pod_ip": "${env:POD_IP:-unknown-ip}"
+  },
+  "user_info": {
+    "user_id": "${mdc:userId:-}",
+    "session_id": "${mdc:sessionId:-}",
+    "username": "${mdc:username:-}",
+    "correlation_id": "${mdc:correlationId:-}",
+    "request_id": "${mdc:requestId:-}"
+  },
+  "http_request": {
+    "method": "${mdc:httpMethod:-}",
+    "uri": "${mdc:requestUri:-}",
+    "url": "${mdc:requestUrl:-}",
+    "protocol": "${mdc:protocol:-}",
+    "headers": {
+      "user_agent": "${mdc:userAgent:-}",
+      "content_type": "${mdc:contentType:-}",
+      "content_length": "${mdc:contentLength:-}",
+      "accept": "${mdc:accept:-}",
+      "accept_encoding": "${mdc:acceptEncoding:-}",
+      "accept_language": "${mdc:acceptLanguage:-}",
+      "authorization": "${mdc:hasAuthorization:-}",
+      "x_forwarded_for": "${mdc:xForwardedFor:-}",
+      "x_forwarded_proto": "${mdc:xForwardedProto:-}",
+      "x_real_ip": "${mdc:xRealIp:-}",
+      "referer": "${mdc:referer:-}"
+    },
+    "query_params": "${mdc:queryParams:-}",
+    "request_body_size": "${mdc:requestSize:-}",
+    "remote_addr": "${mdc:clientIp:-}",
+    "remote_user": "${mdc:remoteUser:-}"
+  },
+  "http_response": {
+    "status_code": "${mdc:responseStatus:-}",
+    "status_text": "${mdc:responseStatusText:-}",
+    "content_type": "${mdc:responseContentType:-}",
+    "content_length": "${mdc:responseSize:-}",
+    "headers": {
+      "location": "${mdc:responseLocation:-}",
+      "cache_control": "${mdc:responseCacheControl:-}",
+      "set_cookie": "${mdc:hasSetCookie:-}"
+    }
+  },
+  "performance": {
+    "response_time_ms": "${mdc:responseTime:-}",
+    "processing_time_ms": "${mdc:processingTime:-}",
+    "queue_time_ms": "${mdc:queueTime:-}",
+    "database_time_ms": "${mdc:databaseTime:-}",
+    "external_api_time_ms": "${mdc:externalApiTime:-}"
+  },
+  "trace_info": {
+    "trace_id": "${ctx:traceId:-}",
+    "span_id": "${ctx:spanId:-}",
+    "parent_span_id": "${ctx:parentSpanId:-}",
+    "sampled": "${mdc:traceSampled:-}"
+  },
+  "istio_info": {
+    "source_app": "${mdc:istioSourceApp:-}",
+    "source_version": "${mdc:istioSourceVersion:-}",
+    "destination_app": "${mdc:istioDestinationApp:-}",
+    "destination_version": "${mdc:istioDestinationVersion:-}",
+    "request_id": "${mdc:istioRequestId:-}",
+    "mesh_id": "${env:ISTIO_MESH_ID:-unknown}"
+  },
+  "security": {
+    "tls_version": "${mdc:tlsVersion:-}",
+    "cipher_suite": "${mdc:cipherSuite:-}",
+    "client_cert_verified": "${mdc:clientCertVerified:-}",
+    "rate_limit_exceeded": "${mdc:rateLimitExceeded:-}",
+    "blocked_by_waf": "${mdc:blockedByWaf:-}"
+  },
+  "business_context": {
+    "transaction_id": "${mdc:transactionId:-}",
+    "api_version": "${mdc:apiVersion:-}",
+    "client_version": "${mdc:clientVersion:-}",
+    "feature_flag": "${mdc:featureFlag:-}",
+    "ab_test_group": "${mdc:abTestGroup:-}"
+  }
+}
